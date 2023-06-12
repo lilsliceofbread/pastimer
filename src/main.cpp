@@ -8,25 +8,24 @@ int main(int argc, char* argv[]) {
     }
 
     std::string command_str;
+    std::string argument_str;
+        
     command_str = argv[1];
+    if(argc  >= 3) //don't read past end of array
+        argument_str = argv[2];
 
     initCmd();
 
+    //epic title for no reason whatsoever
+    std::cout << 
+    " _____         _   _                \n"               
+    "|  _  |___ ___| |_|_|_____ ___ ___  \n"
+    "|   __| .'|_ -|  _| |     | -_|  _| \n"
+    "|__|  |__,|___|_| |_|_|_|_|___|_|   \n" << std::endl;
+
     CommandType command = compareCmd(command_str);
-    switch(command) {
-        case ADD:
-            std::cout << "adding " << std::endl;
-            break;
-        case START:
-            std::cout << "starting " << std::endl;
-            break;
-        case STOP:
-            std::cout << "stopping " << std::endl;
-            break;
-        case GET_TIME:
-            std::cout << "time is" << std::endl;
-            break;
-    }
+    
+    runCmd(command, argument_str);
 
     return 0;
 }

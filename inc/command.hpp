@@ -8,4 +8,5 @@ enum CommandType {
 };
 
 void initCmd();
-CommandType compareCmd(std::string command_str);
+CommandType compareCmd(const std::string& command_str);
+void runCmd(CommandType command, const std::string& argument);
