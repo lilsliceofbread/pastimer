@@ -8,13 +8,13 @@ int main(int argc, char* argv[]) {
     }
 
     std::string command_str;
-    std::string argument_str;
+    std::string argument_str = ""; //if no arguments
         
     command_str = argv[1];
     if(argc  >= 3) //don't read past end of array
         argument_str = argv[2];
 
-    initCmd();
+    init_cmd();
 
     //epic title for no reason whatsoever
     std::cout << 
@@ -23,9 +23,7 @@ int main(int argc, char* argv[]) {
     "|   __| .'|_ -|  _| |     | -_|  _| \n"
     "|__|  |__,|___|_| |_|_|_|_|___|_|   \n" << std::endl;
 
-    CommandType command = compareCmd(command_str);
-    
-    runCmd(command, argument_str);
+    run_cmd(command_str, argument_str);
 
     return 0;
 }
