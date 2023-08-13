@@ -16,14 +16,13 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    // could do args[] = argv[1] to argv[argc - 1] for multiple args
     std::string command_str;
     std::string argument_str = ""; // if no arguments
 
     command_str = argv[1];
     if (argc >= 3) // don't read past end of array
         argument_str = argv[2];
-
-    init_cmd();
 
     run_cmd(command_str, argument_str);
 

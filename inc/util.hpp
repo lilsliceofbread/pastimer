@@ -34,7 +34,7 @@ std::string get_config_dir()
 #elif _WIN32
 std::string get_config_dir() 
 {
-    // TODO
+    // no windows implementation
 }
 #endif
 
