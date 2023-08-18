@@ -143,19 +143,28 @@ void stop_handler(const std::string &argument)
     read_file.close();
 
     start_time = static_cast<std::time_t>(std::stoi(num_str)); // get time_t (long int) from num_str
-    std::cout << stop_time - start_time << " seconds since starting" << std::endl;
+    int time_length = stop_time - start_time;
+    std::cout << time_length << " seconds since starting" << std::endl;
 
     // remove start time from file
     // store start/end time as unix timestamp, maybe with message (timer stop task [msg])
+    // output format: start:timefromstart msg
 
-    /*write_file.open(filepath, std::ios::app); 
+    write_file.open(filepath, std::ios::trunc); // remove initial data 
     if(!write_file.is_open())
     {
         std::cout << "could not open task file" << std::endl;
         write_file.close();
         return;
     }
-    write_file.close();*/
+    std::size_t prev_data_end = orig_file_data.rfind('~', orig_file_data.size() - 1);
+    orig_file_data.erase(orig_file_data.begin() + prev_data_end, orig_file_data.end()); // should remove ~
+    std::cout << orig_file_data << std::endl;
+    // need to append ~ later
+    // only need to append outputformat + \n~
+    std::string output_str = std::to_string(start_time) + ":" + std::to_string(time_length); // ADD MSG
+
+    write_file.close();
 }
 
 void gettime_handler(const std::string &argument)
