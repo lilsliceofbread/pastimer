@@ -41,7 +41,7 @@ std::string get_config_dir()
 void reset_task(std::string filepath) {
     std::ofstream task_file;
 
-    task_file.open(filepath);
+    task_file.open(filepath, std::ios::trunc);
     if (!task_file.is_open())
     {
         std::cout << "could not create config file" << std::endl;

@@ -17,14 +17,30 @@ int main(int argc, char *argv[])
     }
 
     // could do args[] = argv[1] to argv[argc - 1] for multiple args
+    // use vector instead
     std::string command_str;
-    std::string argument_str = ""; // if no arguments
+    std::string argument_strs[2];
+    switch(argc) {
+        case 0:
+        case 1:
+        case 2:
+            std::cout << "not enough arguments given" << std::endl;
+            break;
+        case 3:
+            command_str = argv[1];
+            argument_strs[0] = argv[2];
+            argument_strs[1] = "";
 
-    command_str = argv[1];
-    if (argc >= 3) // don't read past end of array
-        argument_str = argv[2];
+            run_cmd(command_str, argument_strs);
+            break;
+        default: // if too many arguments just ignore the rest 
+            command_str = argv[1];
+            argument_strs[0] = argv[2];
+            argument_strs[1] = argv[3];
 
-    run_cmd(command_str, argument_str);
+            run_cmd(command_str, argument_strs);
+            break;
+    }
 
     return 0;
 }
