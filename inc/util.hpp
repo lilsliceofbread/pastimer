@@ -53,3 +53,9 @@ void reset_task(std::string filepath) {
 
     task_file.close();
 }
+
+struct task_entry {
+    std::time_t start_time;
+    int time_length;
+    std::string message;
+};

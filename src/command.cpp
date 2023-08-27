@@ -3,6 +3,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <vector>
 #include <fstream>
 #include "util.hpp"
 #include "command.hpp"
@@ -140,9 +141,9 @@ void stop_handler(const std::string (&arguments)[2])
     std::ostringstream temp_stream;
     temp_stream << read_file.rdbuf();
     orig_file_data = temp_stream.str();    
+
     int num_end = orig_file_data.size() - cursor_pos; 
     int num_start = orig_file_data.rfind('\n', num_end);
-
     std::string num_str = orig_file_data.substr(num_start, num_end - num_start + 2); // cursor_pos is off by 2
 
     read_file.close();
@@ -172,9 +173,66 @@ void stop_handler(const std::string (&arguments)[2])
     write_file.close();
 }
 
-void gettime_handler(const std::string (&arguments)[2])
+void list_handler(const std::string (&arguments)[2])
 {
-    std::cout << "getting total time for " << arguments[0] << std::endl;
+    std::string filepath;
+    filepath = config_filepath + arguments[0] + extension;
+    // open file (read only) w/ position indicator at end
+    std::ifstream read_file(filepath, std::ios::ate);
+    std::streampos read_file_size = read_file.tellg();
+    std::vector<std::string> file_data;
+
+    if (!read_file.is_open())
+    {
+        std::cout << "task does not exist" << std::endl;
+        read_file.close();
+        return;
+    }
+    if(read_file_size < 4) // should have atleast ~\n~ - 3 chars + EOF
+    {
+        std::cout << "task has no data" << std::endl;
+        read_file.close(); // close instead of resetting task here
+        return;
+    }
+
+    read_file.seekg(0, std::ios::beg);  
+
+    // get all lines into vector
+    int lineIter = 0;
+    bool seenEntryChar = false;
+    while(!read_file.eof()) {
+        std::string line;
+        std::getline(read_file, line, '\n');
+        if(seenEntryChar) {
+            file_data.push_back(line);
+            lineIter++;
+        }
+        // makes sure not to include stuff before entries
+        if(line[0] == '~') {
+            seenEntryChar = true;
+        }
+    }
+
+    for(std::size_t i = 0; i < file_data.size(); i++) {
+        std::string line = file_data[i];
+        if(line[0] == '~') break; // once reached end of entries break
+        task_entry entry;
+        
+        std::size_t time_separator = line.find_first_of(':', 0);
+        std::size_t msg_separator = line.find_first_of(' ', time_separator);
+
+        std::string start_time_str = line.substr(0, time_separator);
+        std::string time_length_str = line.substr(time_separator + 1, msg_separator - time_separator);
+        entry.message = line.substr(msg_separator, line.length() - 1); // if no message should be nothing
+        entry.start_time = static_cast<std::time_t>(std::stoi(start_time_str));
+        entry.time_length = std::stoi(time_length_str);
+
+        // could figure out best duration unit to use based on time_length        
+        std::cout << i+1 << ") started at " << std::ctime(&entry.start_time)
+                         << " lasting for " << entry.time_length / 60 << " mins" << std::endl;
+        if(entry.message != "" && entry.message != " ") // if message not empty
+            std::cout << " message: " << entry.message << std::endl;
+    }
 }
 
 void init_cmd()
@@ -183,11 +241,11 @@ void init_cmd()
     cmap.emplace("add", &add_handler);
     cmap.emplace("start", &start_handler);
     cmap.emplace("stop", &stop_handler);
-    cmap.emplace("time", &gettime_handler);
+    cmap.emplace("list", &list_handler);
     config_filepath = get_config_dir();
 }
 
-void run_cmd(const std::string &command_str, const std::string (&arguments)[2])
+void run_cmd(const std::string& command_str, const std::string (&arguments)[2])
 {
     init_cmd();
     // iterator containing location of match
@@ -198,6 +256,6 @@ void run_cmd(const std::string &command_str, const std::string (&arguments)[2])
         return;
     }
     // get command handler function and run
-    cmd_handler current_cmd_handler = command_iter->second;
-    current_cmd_handler(arguments);
+    cmd_handler curr_cmd_handler = command_iter->second;
+    curr_cmd_handler(arguments);
 }
