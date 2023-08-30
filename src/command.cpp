@@ -67,7 +67,7 @@ void start_handler(const std::string (&arguments)[2])
             last_char = file_check.peek();                // get char at position indicator
             cursor_pos++;
         }
-        std::cout << "last character: " << last_char << std::endl;
+        //std::cout << "last character: " << last_char << std::endl;
         if(last_char != '~') // if final char does not equal the end of file
         {
             std::cout << "timer already started" << std::endl;
@@ -127,7 +127,7 @@ void stop_handler(const std::string (&arguments)[2])
         last_char = read_file.peek();                // get char at position indicator
         cursor_pos++;
     }
-    std::cout << "last character: " << last_char << std::endl;
+    //std::cout << "last character: " << last_char << std::endl;
     if(last_char == '~') // if final char DOES equal the end of file
     {
         std::cout << "timer not started" << std::endl;
@@ -150,7 +150,7 @@ void stop_handler(const std::string (&arguments)[2])
 
     start_time = static_cast<std::time_t>(std::stoi(num_str)); // get time_t (long int) from num_str
     int time_length = stop_time - start_time;
-    std::cout << time_length << " seconds since starting" << std::endl;
+    std::cout << time_length / 60 << " minutes since starting" << std::endl;
 
     // remove start time from file string
     std::string new_file_data = orig_file_data;
@@ -213,6 +213,7 @@ void list_handler(const std::string (&arguments)[2])
         }
     }
 
+    int totalSeconds = 0;
     for(std::size_t i = 0; i < file_data.size(); i++) {
         std::string line = file_data[i];
         if(line[0] == '~') break; // once reached end of entries break
@@ -223,16 +224,25 @@ void list_handler(const std::string (&arguments)[2])
 
         std::string start_time_str = line.substr(0, time_separator);
         std::string time_length_str = line.substr(time_separator + 1, msg_separator - time_separator);
-        entry.message = line.substr(msg_separator, line.length() - 1); // if no message should be nothing
+        entry.message = line.substr(msg_separator + 1, line.length() - 1); // if no message should be ""
         entry.start_time = static_cast<std::time_t>(std::stoi(start_time_str));
         entry.time_length = std::stoi(time_length_str);
 
+        // make border cover "message: "(9 char) + message else 50
+        const int borderLength = (entry.message.length() + 9) > 50 ? (entry.message.length() + 9) : 50;
+        totalSeconds += entry.time_length;
         // could figure out best duration unit to use based on time_length        
-        std::cout << i+1 << ") started at " << std::ctime(&entry.start_time)
-                         << " lasting for " << entry.time_length / 60 << " mins" << std::endl;
+        std::cout << std::setw(borderLength) << std::setfill('=') << std::left << i+1 << "\n"; 
+
         if(entry.message != "" && entry.message != " ") // if message not empty
-            std::cout << " message: " << entry.message << std::endl;
+            std::cout << "message: " << entry.message << "\n";
+
+        std::cout << std::ctime(&entry.start_time)
+                  << entry.time_length / 60 << " mins" << std::endl
+                  << std::setw(borderLength + 2) << std::setfill('=') << std::right << "\n\n";
+                  // +2 fixes weird bug/feature where it won't fill to same length
     }
+    std::cout << "TOTAL TIME: " << totalSeconds / 60 << " mins" << std::endl;
 }
 
 void init_cmd()

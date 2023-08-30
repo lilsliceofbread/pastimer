@@ -1,8 +1,6 @@
 # Pastimer
 A Linux CLI timer to record time spent on specific tasks. Works by recording the time difference between when you start and stop the timer.
 
-- Work in progress
-
 # Install
 
 clone the repository
