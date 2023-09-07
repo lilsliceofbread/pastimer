@@ -87,7 +87,7 @@ void start_handler(const std::string (&arguments)[2])
     }
     task_file << "\n" << unix_time; // output starting time to file
     std::cout << "starting timer for " << arguments[0] << std::endl;
-    std::cout << "current time: " << std::ctime(&unix_time) << std::endl;
+    std::cout << "current time: " << std::ctime(&unix_time); // ctime automatically adds newline
 
     task_file.close();
 }
@@ -198,23 +198,26 @@ void list_handler(const std::string (&arguments)[2])
     read_file.seekg(0, std::ios::beg);  
 
     // get all lines into vector
-    int lineIter = 0;
     bool seenEntryChar = false;
-    while(!read_file.eof()) {
+    while(!read_file.eof())
+    {
         std::string line;
         std::getline(read_file, line, '\n');
-        if(seenEntryChar) {
-            file_data.push_back(line);
-            lineIter++;
-        }
+
         // makes sure not to include stuff before entries
-        if(line[0] == '~') {
-            seenEntryChar = true;
+        if(!seenEntryChar)
+        {
+            seenEntryChar = (line[0] == '~'); 
+            continue;
         }
+        else if(line.empty() || line[0] == ' ' || line[0] == '\n') continue; // prevent accidental newlines from breaking program
+
+        file_data.push_back(line);
     }
 
     int totalSeconds = 0;
-    for(std::size_t i = 0; i < file_data.size(); i++) {
+    for(std::size_t i = 0; i < file_data.size(); i++)
+    {
         std::string line = file_data[i];
         if(line[0] == '~') break; // once reached end of entries break
         task_entry entry;
